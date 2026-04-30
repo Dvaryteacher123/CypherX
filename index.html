@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVARY CYBER GEN | V38</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --p: #00ffcc; --bg: #050810; --card: #0a0f1a; }
+        body { background: var(--bg); color: #fff; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 0; transition: 0.5s; }
+        
+        /* Language Switcher */
+        .lang-bar { display: flex; justify-content: flex-end; padding: 10px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #111; }
+        .lang-btn { background: transparent; border: 1px solid var(--p); color: var(--p); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 11px; margin-left: 5px; }
+        .lang-btn.active { background: var(--p); color: #000; }
+
+        .header { text-align: center; padding: 30px 20px; border-bottom: 2px solid var(--p); }
+        .logo { font-size: 26px; font-weight: 900; color: var(--p); letter-spacing: 5px; text-shadow: 0 0 10px var(--p); }
+
+        .container { max-width: 450px; margin: 20px auto; padding: 0 15px; }
+        .card { background: var(--card); border: 1px solid #1a1a1a; padding: 25px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        label { display: block; font-size: 11px; color: var(--p); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .output-box { background: #000; border: 1px dashed var(--p); padding: 15px; color: var(--p); border-radius: 8px; font-size: 14px; min-height: 90px; word-break: break-all; line-height: 1.6; }
+        
+        .btn { width: 100%; padding: 16px; background: var(--p); color: #000; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; margin-top: 15px; font-family: inherit; font-size: 14px; text-transform: uppercase; }
+        .btn:active { transform: scale(0.97); }
+
+        /* Join Channel Button */
+        .btn-join { background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; margin-top: 10px; border-radius: 8px; padding: 15px; font-weight: bold; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: #fff; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; outline: none; font-family: inherit; border-left: 3px solid var(--p); }
+        .footer { text-align: center; padding: 30px; font-size: 10px; color: #444; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <div class="lang-bar">
+        <button class="lang-btn active" id="sw-btn" onclick="setLang('sw')">KISWAHILI</button>
+        <button class="lang-btn" id="en-btn" onclick="setLang('en')">ENGLISH</button>
+    </div>
+
+    <div class="header">
+        <div class="logo">DVARY_GEN_V38</div>
+        <p id="ui-sub" style="font-size: 10px; color: #555;">[ ANONYMOUS PRIVACY TOOLKIT ]</p>
+    </div>
+
+    <div class="container">
+        
+        <div class="card">
+            <label id="ui-label-id"><i class="fas fa-user-secret"></i> VIRTUAL ID GENERATOR:</label>
+            <div class="output-box" id="idOutput">...</div>
+            <button class="btn" id="ui-btn-gen" onclick="genID()">GENERATE NEW ID</button>
+        </div>
+
+        <div class="card">
+            <label id="ui-label-link"><i class="fas fa-shield-alt"></i> SAFE-LINK BYPASSER:</label>
+            <input type="text" id="linkInput" placeholder="https://...">
+            <button class="btn" id="ui-btn-bypass" style="background: #fff;" onclick="bypassLink()">PROTECT & OPEN</button>
+        </div>
+
+        <a href="https://whatsapp.com/channel/0029VbCRC9b5fM5cruU8PF2M" class="btn-join" target="_blank">
+            <i class="fab fa-whatsapp" style="font-size: 20px;"></i>
+            <span id="ui-btn-join">JOIN DVARY CHANNEL</span>
+        </a>
+
+    </div>
+
+    <div class="footer">
+        DEVELOPED BY KAMANDA ELIA | TECHNOLOGY EDUCATOR<br>
+        © 2026 DVARY ACADEMY TANZANIA
+    </div>
+
+    <script>
+        const uiData = {
+            sw: {
+                sub: "[ ZANA ZA SIRI ZA USALAMA ]",
+                idL: "KIDHIBITI UTAMBULISHO (ID):",
+                linkL: "KIKAGUZI CHA LINK SALAMA:",
+                btnGen: "TENGENEZA UTAMBULISHO",
+                btnBypass: "KAGUA NA FUNGUA",
+                btnJoin: "JIUNGE NA CHANNEL YETU",
+                placeholder: "Weka link hapa...",
+                wait: "BONYEZA KITUFE KUTENGENEZA ID...",
+                alert: "Tunachuja usalama wa link... Tafadhali subiri!"
+            },
+            en: {
+                sub: "[ ANONYMOUS PRIVACY TOOLKIT ]",
+                idL: "VIRTUAL ID GENERATOR:",
+                linkL: "SAFE-LINK BYPASSER:",
+                btnGen: "GENERATE NEW ID",
+                btnBypass: "PROTECT & OPEN",
+                btnJoin: "JOIN DVARY CHANNEL",
+                placeholder: "Paste link here...",
+                wait: "CLICK BUTTON TO GENERATE ID...",
+                alert: "Bypassing security layers... Redirecting safely."
+            }
+        };
+
+        let currentLang = 'sw';
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.getElementById('sw-btn').classList.toggle('active', lang === 'sw');
+            document.getElementById('en-btn').classList.toggle('active', lang === 'en');
+            
+            document.getElementById('ui-sub').innerText = uiData[lang].sub;
+            document.getElementById('ui-label-id').innerHTML = `<i class="fas fa-user-secret"></i> ` + uiData[lang].idL;
+            document.getElementById('ui-label-link').innerHTML = `<i class="fas fa-shield-alt"></i> ` + uiData[lang].linkL;
+            document.getElementById('ui-btn-gen').innerText = uiData[lang].btnGen;
+            document.getElementById('ui-btn-bypass').innerText = uiData[lang].btnBypass;
+            document.getElementById('ui-btn-join').innerText = uiData[lang].btnJoin;
+            document.getElementById('linkInput').placeholder = uiData[lang].placeholder;
+            document.getElementById('idOutput').innerText = uiData[lang].wait;
+        }
+
+        function genID() {
+            const first = ["John", "Michael", "Robert", "David", "William", "James", "Emma", "Olivia"];
+            const last = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis"];
+            const cities = ["New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX", "London, UK"];
+            
+            const rF = first[Math.floor(Math.random() * first.length)];
+            const rL = last[Math.floor(Math.random() * last.length)];
+            const rC = cities[Math.floor(Math.random() * cities.length)];
+            const phone = "+1 (555) " + Math.floor(100 + Math.random() * 900) + "-" + Math.floor(1000 + Math.random() * 9000);
+            
+            document.getElementById('idOutput').innerHTML = `
+                <b>NAME:</b> ${rF} ${rL}<br>
+                <b>PHONE:</b> ${phone}<br>
+                <b>CITY:</b> ${rC}<br>
+                <b>ZIP:</b> ${Math.floor(10000 + Math.random() * 90000)}
+            `;
+        }
+
+        function bypassLink() {
+            const link = document.getElementById('linkInput').value;
+            if(!link) return alert(currentLang === 'sw' ? "Weka link kwanza!" : "Enter link first!");
+            alert(uiData[currentLang].alert);
+            window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(link);
+        }
+
+        // Init Swahili
+        setLang('sw');
+    </script>
+</body>
+</html>
+
