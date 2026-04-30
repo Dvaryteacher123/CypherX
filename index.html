@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVARY | ORIGINALITY CHECKER</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --p: #00ffcc; --bg: #050810; --card: #0d1117; --error: #ff3333; }
+        body { background: var(--bg); color: #fff; font-family: 'Poppins', sans-serif; margin: 0; padding: 15px; }
+        
+        .header { text-align: center; padding: 20px 0; border-bottom: 2px solid var(--p); }
+        .logo { font-size: 22px; font-weight: 900; color: var(--p); letter-spacing: 2px; }
+
+        .card { background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid #222; max-width: 450px; margin: 20px auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        
+        .scan-box { border: 2px dashed #333; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .scanning { animation: pulse 1.5s infinite; color: var(--p); }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a1a1a; font-size: 13px; }
+        .label { color: #888; }
+        .val { color: #fff; font-weight: bold; }
+
+        .btn-verify { width: 100%; padding: 15px; background: var(--p); color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 14px; text-transform: uppercase; }
+        
+        .alert-box { background: rgba(255, 51, 51, 0.1); border: 1px solid var(--error); padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 12px; display: none; }
+
+        .btn-join { display: flex; align-items: center; justify-content: center; gap: 10px; background: #25d366; color: #fff; text-decoration: none; padding: 15px; border-radius: 10px; margin-top: 30px; font-weight: bold; max-width: 450px; margin: auto; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">DVARY_CHECKER_V46</div>
+        <p style="font-size: 10px; color: #555;">[ HAKIKI KAMA SIMU NI ORIJINALO AU FEKI ]</p>
+    </div>
+
+    <div class="card">
+        <div id="scanUI">
+            <div class="scan-box">
+                <i class="fas fa-shield-virus scanning" style="font-size: 50px;"></i>
+                <p id="status">Inasoma mfumo wa ndani...</p>
+            </div>
+
+            <div id="results" style="display: none;">
+                <div class="info-row">
+                    <span class="label">MFUMO (OS):</span>
+                    <span class="val" id="outOS">...</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">RAM (CORES):</span>
+                    <span class="val" id="outCPU">...</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">SCREEN DEPTH:</span>
+                    <span class="val" id="outDepth">...</span>
+                </div>
+
+                <div class="alert-box" id="warning">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>TAHADHARI:</strong> Kama taarifa hizi hazilingani na boksi la simu, simu hii inaweza kuwa ni FEKI au REBURI (Refurbished).
+                </div>
+
+                <button class="btn-verify" onclick="verifyIMEI()">HAKIKI IMEI SASA</button>
+            </div>
+        </div>
+    </div>
+
+    <a href="https://whatsapp.com/channel/0029VbCRC9b5fM5cruU8PF2M" class="btn-join">
+        <i class="fab fa-whatsapp"></i> JIUNGE NA DVARY CHANNEL
+    </a>
+
+    <script>
+        // Simulizi ya scanning kitalaamu
+        setTimeout(() => {
+            document.getElementById('status').innerText = "Uchambuzi umekamilika!";
+            document.getElementById('outOS').innerText = navigator.platform;
+            document.getElementById('outCPU').innerText = (navigator.hardwareConcurrency || "N/A") + " Core Processor";
+            document.getElementById('outDepth').innerText = window.screen.colorDepth + " bit color";
+            
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('warning').style.display = 'block';
+        }, 3000);
+
+        function verifyIMEI() {
+            alert("Mwalimu, sasa utapelekwa kwenye mfumo wa IMEI.info. Piga *#06# kupata IMEI yako, kisha iingize huko!");
+            window.open("https://www.imei.info", "_blank");
+        }
+    </script>
+</body>
+</html>
+
