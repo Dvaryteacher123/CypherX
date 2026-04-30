@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVARY SNIPER | V115 FIXED</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --p: #00ffcc; --bg: #000; --danger: #ff003c; --win: #00ff00; }
+        body { background: var(--bg); color: #fff; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 0; overflow-x: hidden; }
+        
+        .header { padding: 15px; background: #000; border-bottom: 2px solid var(--p); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 16px; font-weight: 900; color: var(--p); text-shadow: 0 0 10px var(--p); }
+
+        .lang-btn { background: none; border: 1px solid var(--p); color: var(--p); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-left: 5px; }
+        .lang-btn.active { background: var(--p); color: #000; }
+
+        .container { max-width: 500px; margin: auto; padding: 15px; text-align: center; }
+
+        /* Dashboard Glow Logic */
+        .dash-circle { width: 180px; height: 180px; border: 6px solid #111; border-radius: 50%; margin: 10px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top-color: var(--p); transition: 0.5s; }
+        
+        /* Hii ndio itatokea ukichomeka chaji na joto ni dogo */
+        .charging-safe { border-color: var(--win) !important; box-shadow: 0 0 30px rgba(0, 255, 0, 0.4); }
+        
+        /* Hii ni kwa ajili ya Hatari TU (80°C+) */
+        .critical-heat { border-color: var(--danger) !important; box-shadow: 0 0 50px var(--danger); animation: shake 0.1s infinite; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, 1px); } }
+
+        .terminal { background: #050810; border: 1px solid #222; border-radius: 10px; height: 120px; margin: 15px 0; padding: 10px; overflow: hidden; text-align: left; }
+        .line { font-size: 9px; color: var(--p); margin: 1px 0; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .card { background: #0a0d14; border: 1px solid #1a1a1a; padding: 12px; border-radius: 10px; text-align: left; }
+        .v { font-size: 13px; font-weight: bold; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">DVARY_SNIPER_V115</div>
+        <div>
+            <button id="btn-sw" class="lang-btn active" onclick="setLang('sw')">SW</button>
+            <button id="btn-en" class="lang-btn" onclick="setLang('en')">EN</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="dash-circle" id="mainDash">
+            <span id="batPer" style="font-size: 55px; font-weight: bold;">0%</span>
+            <span id="batTemp" style="color: #ffcc00; font-size: 16px; font-weight: bold;">30°C</span>
+        </div>
+
+        <div class="terminal" id="term"></div>
+
+        <div class="grid">
+            <div class="card"><span id="t-device" style="font-size:9px; color:#555;">SIMU</span><br><span id="val-device" class="v">Detecting...</span></div>
+            <div class="card"><span id="t-status" style="font-size:9px; color:#555;">HALI</span><br><span id="val-status" class="v">...</span></div>
+            <div class="card"><span id="t-ram" style="font-size:9px; color:#555;">RAM USAGE</span><br><span id="val-ram" class="v">--</span></div>
+            <div class="card"><span id="t-health" style="font-size:9px; color:#555;">AFYA</span><br><span class="v" style="color:var(--win)">GOOD</span></div>
+        </div>
+
+        <a href="https://whatsapp.com/channel/0029VbCRC9b5fM5cruU8PF2M" style="background:#25d366; color:#fff; padding:15px; border-radius:10px; display:block; text-decoration:none; font-weight:bold;">JIUNGE NA CHANNEL YETU</a>
+    </div>
+
+    <audio id="alarm"><source src="https://cdn.pixabay.com/audio/2022/03/24/audio_349692c81a.mp3"></audio>
+
+    <script>
+        let currentLang = 'sw';
+        const term = document.getElementById('term');
+        const alarm = document.getElementById('alarm');
+        let notifSent = false;
+        let realTemp = 30.0; // Joto linaanzia hapa
+
+        const dict = {
+            sw: { status: "HALI", connect: "IMEUNGANISHWA", disconnect: "HAICHAJI", smsHead: "⚠️ HATARI: JOTO KALI!", smsBody: "Simu imefika 80°C!", logs: ["UCHUNGUZI...", "LINDA MFUMO...", "HAKIKI BETRI..."] },
+            en: { status: "STATUS", connect: "CONNECTED", disconnect: "DISCONNECTED", smsHead: "⚠️ DANGER: OVERHEAT!", smsBody: "Phone reached 80°C!", logs: ["SCANNING...", "SECURE SYSTEM...", "BATTERY CHECK..."] }
+        };
+
+        function setLang(l) {
+            currentLang = l;
+            document.getElementById('btn-sw').classList.toggle('active', l==='sw');
+            document.getElementById('btn-en').classList.toggle('active', l==='en');
+            document.getElementById('t-status').innerText = dict[l].status;
+        }
+
+        function runSystem() {
+            if('getBattery' in navigator) {
+                navigator.getBattery().then(bat => {
+                    const level = Math.round(bat.level * 100);
+                    document.getElementById('batPer').innerText = level + "%";
+                    const isCharging = bat.charging;
+                    document.getElementById('val-status').innerText = isCharging ? dict[currentLang].connect : dict[currentLang].disconnect;
+
+                    // REAL LOGIC: Joto linaongezeka polepole tu kama unachaji
+                    if(isCharging && realTemp < 81) { realTemp += 0.1; } 
+                    else if(!isCharging && realTemp > 30) { realTemp -= 0.1; }
+
+                    document.getElementById('batTemp').innerText = realTemp.toFixed(1) + "°C";
+
+                    const dash = document.getElementById('mainDash');
+                    
+                    // Kama joto ni chini ya 80, isionyeshe nyekundu
+                    if(realTemp >= 80) {
+                        dash.classList.remove('charging-safe');
+                        dash.classList.add('critical-heat');
+                        alarm.play();
+                    } else if (isCharging) {
+                        dash.classList.remove('critical-heat');
+                        dash.classList.add('charging-safe'); // Itakuwa ya kijani
+                        alarm.pause();
+                    } else {
+                        dash.classList.remove('critical-heat', 'charging-safe');
+                        alarm.pause();
+                    }
+                });
+            }
+
+            // Fake RAM Logic for visual
+            document.getElementById('val-ram').innerText = (Math.random() * 2 + 2).toFixed(1) + "GB / 8GB";
+            document.getElementById('val-device').innerText = navigator.platform.substring(0,10);
+
+            const line = document.createElement('div');
+            line.className = 'line';
+            line.innerText = `> [${new Date().toLocaleTimeString()}] ${dict[currentLang].logs[Math.floor(Math.random()*3)]} ... OK`;
+            term.appendChild(line);
+            if(term.childNodes.length > 7) term.removeChild(term.firstChild);
+        }
+
+        setInterval(runSystem, 1000);
+        setLang('sw');
+    </script>
+</body>
+</html>
+
