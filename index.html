@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVARY POWER SNIPER PRO</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --p: #00ffcc; --bg: #010409; --card: #0d1117; --danger: #ff003c; }
+        body { background: var(--bg); color: #fff; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 0; }
+        
+        /* Login Screen */
+        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+        .login-box { border: 2px solid var(--p); padding: 35px; border-radius: 25px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.2); width: 85%; max-width: 380px; }
+
+        /* Dashboard */
+        .header { padding: 15px; border-bottom: 2px solid var(--p); display: flex; justify-content: space-between; align-items: center; background: #000; }
+        .logo { font-size: 18px; font-weight: 900; color: var(--p); text-shadow: 0 0 10px var(--p); }
+        .lang-btns { display: flex; gap: 5px; }
+        .l-btn { background: none; border: 1px solid var(--p); color: var(--p); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+        .l-btn.active { background: var(--p); color: #000; }
+
+        .container { max-width: 450px; margin: auto; padding: 20px; text-align: center; }
+        
+        /* Battery Visual */
+        .battery-container { width: 100px; height: 180px; border: 4px solid #333; border-radius: 12px; margin: 20px auto; position: relative; padding: 5px; display: flex; align-items: flex-end; }
+        .battery-cap { width: 40px; height: 12px; background: #333; margin: -10px auto 0; border-radius: 4px 4px 0 0; }
+        .battery-fill { width: 100%; background: var(--p); border-radius: 8px; transition: 1s ease-in-out; height: 0%; box-shadow: 0 0 15px var(--p); }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 30px; }
+        .card { background: var(--card); border: 1px solid #222; padding: 15px; border-radius: 12px; text-align: left; }
+        .c-lbl { font-size: 9px; color: #666; text-transform: uppercase; }
+        .c-val { font-size: 13px; font-weight: bold; color: #fff; margin-top: 4px; display: block; }
+
+        .advice-box { margin-top: 25px; padding: 15px; border-radius: 10px; background: rgba(0, 255, 204, 0.05); border: 1px dashed var(--p); font-size: 12px; }
+        .btn-logout { margin-top: 30px; color: #ff4444; background: none; border: none; text-decoration: underline; cursor: pointer; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <span class="logo" style="margin-bottom: 25px; display: block; font-size: 24px;">DVARY_SNIPER</span>
+            <p id="txt-login" style="font-size: 11px; color: #888; margin-bottom: 35px;">MFUMO WA KIJASUSI UMEFUNGWA.<br>INGIA NA GOOGLE ILI KUUFUNGUA.</p>
+            
+            <div id="g_id_onload"
+                 data-client_id="780869166873-t31o6u8h33g3ol57f0fgi4bmrdtshdg5.apps.googleusercontent.com"
+                 data-callback="handleSignIn">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-size="large"></div>
+        </div>
+    </div>
+
+    <div id="main-app" style="display: none;">
+        <div class="header">
+            <div class="logo">POWER_SNIPER_V1</div>
+            <div class="lang-btns">
+                <button id="sw-btn" class="l-btn active" onclick="setLang('sw')">SW</button>
+                <button id="en-btn" class="l-btn" onclick="setLang('en')">EN</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="battery-cap"></div>
+            <div class="battery-container">
+                <div id="bat-fill" class="battery-fill"></div>
+            </div>
+            <h2 id="bat-val" style="margin-top: -110px; font-size: 38px; position: relative; z-index: 10;">0%</h2>
+
+            <div class="info-grid" style="margin-top: 80px;">
+                <div class="card">
+                    <span class="c-lbl" id="lbl-status">HALI</span>
+                    <span class="c-val" id="val-status">...</span>
+                </div>
+                <div class="card">
+                    <span class="c-lbl" id="lbl-temp">JOTO</span>
+                    <span class="c-val" id="val-temp" style="color: #ffcc00;">--°C</span>
+                </div>
+                <div class="card">
+                    <span class="c-lbl" id="lbl-health">AFYA</span>
+                    <span class="c-val" style="color: var(--p);">EXCELLENT</span>
+                </div>
+                <div class="card">
+                    <span class="c-lbl" id="lbl-tech">TEKNOLOJIA</span>
+                    <span class="c-val">Li-ion / Pro</span>
+                </div>
+            </div>
+
+            <div class="advice-box" id="ai-advice">
+                Analyzing system parameters...
+            </div>
+
+            <button class="btn-logout" onclick="location.reload()" id="lbl-logout">LOGOUT AGENT</button>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'sw';
+        const langData = {
+            sw: {
+                login: "MFUMO WA KIJASUSI UMEFUNGWA. INGIA NA GOOGLE.",
+                status: "HALI", temp: "JOTO", health: "AFYA", tech: "TEKNOLOJIA", logout: "LOGOUT AGENT",
+                conn: "IMEUNGANISHWA ⚡", dis: "HAICHAJI",
+                advice_high: "ONYO: Joto ni kali! Toa kwenye chaja.",
+                advice_low: "BETRI IPO CHINI: Washa Power Saving.",
+                advice_ok: "AFYA SAWA: Betri yako ipo katika hali nzuri."
+            },
+            en: {
+                login: "SYSTEM LOCKED. SIGN IN WITH GOOGLE TO UNLOCK.",
+                status: "STATUS", temp: "TEMP", health: "HEALTH", tech: "TECH", logout: "LOGOUT AGENT",
+                conn: "CONNECTED ⚡", dis: "DISCONNECTED",
+                advice_high: "WARNING: High temp! Unplug the charger.",
+                advice_low: "LOW BATTERY: Enable Power Saving now.",
+                advice_ok: "HEALTH OK: Battery is in excellent condition."
+            }
+        };
+
+        function setLang(l) {
+            currentLang = l;
+            document.getElementById('sw-btn').classList.toggle('active', l === 'sw');
+            document.getElementById('en-btn').classList.toggle('active', l === 'en');
+            document.getElementById('txt-login').innerText = langData[l].login;
+            document.getElementById('lbl-status').innerText = langData[l].status;
+            document.getElementById('lbl-temp').innerText = langData[l].temp;
+            document.getElementById('lbl-health').innerText = langData[l].health;
+            document.getElementById('lbl-tech').innerText = langData[l].tech;
+            document.getElementById('lbl-logout').innerText = langData[l].logout;
+            updateBatteryUI();
+        }
+
+        function handleSignIn(response) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            startMonitoring();
+        }
+
+        function updateBatteryUI() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(bat => {
+                    const level = Math.round(bat.level * 100);
+                    document.getElementById('bat-val').innerText = level + "%";
+                    document.getElementById('bat-fill').style.height = level + "%";
+                    
+                    if (level < 20) document.getElementById('bat-fill').style.background = "#ff003c";
+                    else if (level < 50) document.getElementById('bat-fill').style.background = "#ffcc00";
+                    else document.getElementById('bat-fill').style.background = "#00ffcc";
+
+                    document.getElementById('val-status').innerText = bat.charging ? langData[currentLang].conn : langData[currentLang].dis;
+                    
+                    let temp = bat.charging ? 39.8 : 31.5;
+                    document.getElementById('val-temp').innerText = temp + "°C";
+
+                    const advice = document.getElementById('ai-advice');
+                    if (temp > 40) { advice.innerText = langData[currentLang].advice_high; advice.style.color = "#ff003c"; }
+                    else if (level < 20) { advice.innerText = langData[currentLang].advice_low; advice.style.color = "#ffcc00"; }
+                    else { advice.innerText = langData[currentLang].advice_ok; advice.style.color = "#00ffcc"; }
+                });
+            }
+        }
+
+        function startMonitoring() {
+            setInterval(updateBatteryUI, 2000);
+            updateBatteryUI();
+        }
+
+        setLang('sw');
+    </script>
+</body>
+</html>
